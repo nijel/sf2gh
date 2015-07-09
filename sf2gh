@@ -52,6 +52,7 @@ class StatusStorage(object):
 class GitHubImport(object):
     def __init__(self, args):
         self.status = StatusStorage()
+        self.status.load()
         self.handle = args.import_handle
         self.token = args.token
         self.repo = args.repo
@@ -62,11 +63,9 @@ class GitHubImport(object):
         self.status.clean()
 
     def check(self):
-        self.status.load()
         self.status.save()
 
     def process(self):
-        self.status.load()
         data = json.load(self.handle)
 
         # Tracker mount point
