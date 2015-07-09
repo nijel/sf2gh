@@ -207,7 +207,7 @@ class GitHubImport(object):
         print json.dumps(response, indent=2)
 
         self.status.data['tickets'][url] = {
-            'import_url': response['url'],
+            'import_response': response,
         }
 
     def process_body(self, description):
