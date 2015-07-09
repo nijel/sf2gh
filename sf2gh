@@ -182,6 +182,11 @@ class GitHubImport(object):
             self.sf_project, self.mount_point, ticket['ticket_num']
         )
 
+        if url in self.status.data['tickets']:
+            if self.verbose:
+                print 'Already processed:', url
+            return
+
         labels = [
             'SourceForge',
             self.tracker_label,
