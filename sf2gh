@@ -66,6 +66,7 @@ class GitHubImport(object):
         self.handle = args.import_handle
         self.token = args.token
         self.repo = args.repo
+        self.verbose = args.verbose
         self.sf_project = args.sf_project
         self.mount_point = None
         self.mount_label = None
@@ -111,6 +112,9 @@ class GitHubImport(object):
             # TODO: assignee
         }
 
+        if self.verbose:
+            print json.dumps(issue, indent=2)
+
         self.status.data['tickets'][url] = {
         }
 
@@ -135,6 +139,11 @@ def get_parser():
         '--sf-project',
         help='Name of SourceForge.net project, eg. phpmyadmin',
         required=True
+    )
+    parser.add_argument(
+        '--verbose',
+        help='Verbose processing',
+        action='store_true',
     )
 
     # Actions
