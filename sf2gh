@@ -217,7 +217,7 @@ class GitHubImport(object):
         elif 'wont-fix' in ticket['status']:
             labels.append('wontfix')
 
-        summary = ticket['summary']
+        summary = ticket['summary'].replace('\\"', '"')
         milestone = None
         if summary.startswith('(in ') or summary.startswith('(ok '):
             milestone, summary = summary.split(')', 1)
