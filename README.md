@@ -1,7 +1,11 @@
 # sf2gh
-Migration of SourceForge.net issues to GitHub
+Migration of SourceForge.net tickets to GitHub issues.
 
-This is specially tailored for phpMyAdmin needs, but might be useful for others.
+This is specially tailored for phpMyAdmin needs, but might be useful for others:
+
+* It parses tickets summary to get milestone information
+* Tags issues based on the tracker where they were stored
+* Automatically creates all milestones
 
 Based on following sources:
 
