@@ -49,6 +49,12 @@ TILDES = re.compile('^~~~+$')
 USER_MAP = {
     'nijel': 'nijel',
     'madhuracj': 'madhuracj',
+    'lem9': 'lem9',
+    'atul5': 'zixtor',
+    'ibennetch': 'ibennetch',
+    'tithugues': 'Tithugues',
+    'chirayu45': 'D-storm',
+    'smita786': 'smita786',
 }
 
 
