@@ -26,13 +26,14 @@ from xdg.BaseDirectory import save_config_path
 SF_URL = 'https://sourceforge.net/p/{0}/{1}/{2}/'
 BODY_TEMPLATE = u'''{body}
 
-Original URL: {url}
-
-Original author: {author}
+---
+* **Original URL**: {url}
+* **Original author**: {author}
 '''
 POST_TEMPLATE = u'''{body}
 
-Original author: {author}
+---
+* **Original author**: {author}
 '''
 
 
