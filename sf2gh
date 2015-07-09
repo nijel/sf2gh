@@ -321,6 +321,15 @@ class GitHubImport(object):
 
     def process_attachments(self, post, textile):
         result = []
+
+        if ('custom_fields' in post and
+                '_milestone' in post['custom_fields'] and
+                self.mount_point in ('support-requests', 'bugs')):
+            result.append(
+                '* **Found in version**: {0}'.format(
+                    post['custom_fields']['_milestone']
+                )
+            )
         for attachment in post['attachments']:
             result.append(
                 '* **Attachment**: {0}'.format(
