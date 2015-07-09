@@ -117,6 +117,7 @@ class GitHubImport(object):
             result = json.load(handle)
         except urllib2.HTTPError as error:
             print error.hdrs
+            print error.fp.read()
             raise
 
         if 'Link' in handle.headers:
