@@ -87,7 +87,9 @@ class GitHubImport(object):
         if data:
             data = json.dumps(data)
         if 'https://' not in url:
-            url = 'https://api.github.com{0}'.format(url)
+            url = 'https://api.github.com/repos/{0}/{1}'.format(
+                self.repo, url
+            )
         request = urllib2.Request(
             url,
             data,
@@ -116,7 +118,7 @@ class GitHubImport(object):
             'description': 'Imported from SourceForge.net',
         }
         response = self.api(
-            '/repos/{0}/milestones'.format(self.repo),
+            'milestones',
             data
         )
         self.milestones[response['title']] = response['number']
@@ -143,7 +145,7 @@ class GitHubImport(object):
 
         self.milestones = {
             m['title']: m['number'] for m in
-            self.api('/repos/{0}/milestones?state=all'.format(self.repo))
+            self.api('milestones?state=all')
         }
 
         for ticket in data['tickets']:
