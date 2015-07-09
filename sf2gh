@@ -231,6 +231,10 @@ class GitHubImport(object):
     def process_body(self, description):
         # SourceForge.net special markup
         description = description.replace(
+            '\\*', '*'
+        ).replace(
+            '\\!', '!'
+        ).replace(
             '\\_', '_'
         ).replace(
             '\\(', '('
