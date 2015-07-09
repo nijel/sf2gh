@@ -28,7 +28,7 @@ SF_URL = 'https://sourceforge.net/p/{0}/{1}/{2}/'
 BODY_TEMPLATE = u'''{body}
 
 ---
-* **Original URL**: {url}
+* **Original URL**: <{url}>
 * **Original author**: {author}
 {attachments}
 '''
