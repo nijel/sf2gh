@@ -109,11 +109,15 @@ class GitHubImport(object):
             {
                 'Authorization': 'token {0}'.format(self.token),
                 'Accept': 'application/vnd.github.golden-comet-preview+json',
-            }
+            },
         )
-        handle = urllib2.urlopen(request)
+        try:
+            handle = urllib2.urlopen(request)
 
-        result = json.load(handle)
+            result = json.load(handle)
+        except urllib2.HTTPError as error:
+            print error.hdrs
+            raise
 
         if 'Link' in handle.headers:
             for item in handle.headers['Link'].split(','):
