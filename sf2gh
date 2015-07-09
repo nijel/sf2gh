@@ -34,6 +34,7 @@ POST_TEMPLATE = u'''{body}
 
 ---
 * **Original author**: {author}
+{attachments}
 '''
 
 
@@ -206,8 +207,18 @@ class GitHubImport(object):
             'body': POST_TEMPLATE.format(
                 body=self.process_body(post['text']),
                 author=post['author'],
+                attachments=self.process_attachments(post),
             ),
         }
+
+    def process_attachments(self, post):
+        result = []
+        for attachment in post['attachments']:
+            print attachment
+            result.append(
+                '* **Attachment**: <{0}>'.format(attachment['url'])
+            )
+        return '\n'.join(result)
 
 
 def get_parser():
