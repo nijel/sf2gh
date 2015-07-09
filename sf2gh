@@ -101,8 +101,15 @@ class GitHubImport(object):
             self.mount_label,
         ]
 
+        summary = ticket['summary']
+        milestone = None
+        if summary.startswith('(ok '):
+            milestone, summary = summary.split(')', 1)
+            milestone = milestone[4:].strip()
+        summary = summary.strip()
+
         issue = {
-            'title': ticket['summary'],
+            'title': summary,
             'body': BODY_TEMPLATE.format(
                 url=url, body=ticket['description'], author=ticket['reported_by']
             ),
@@ -111,6 +118,9 @@ class GitHubImport(object):
             'labels': labels,
             # TODO: assignee
         }
+
+        if milestone:
+            issue['milestone'] = milestone
 
         if self.verbose:
             print json.dumps(issue, indent=2)
