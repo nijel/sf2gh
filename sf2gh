@@ -37,11 +37,11 @@ POST_TEMPLATE = u'''{body}
 {attachments}
 '''
 LABEL_MAP = {
-    'Bugs': 'Bug',
-    'Feature Requests': 'Feature',
-    'Patches': 'Patch',
-    'Translations': 'Translation',
-    'Support Requests': 'Support',
+    'Bugs': 'bug',
+    'Feature Requests': 'enhancement',
+    'Patches': 'patch',
+    'Translations': 'translation',
+    'Support Requests': 'question',
 }
 
 
