@@ -192,6 +192,21 @@ class GitHubImport(object):
             self.process_ticket(ticket)
             self.status.save()
 
+    def is_closed(self, ticket):
+        status = ticket['status']
+        if status in self.closed_states:
+            return True
+
+        # Mark resolved as closed as well
+        if status == 'resolved':
+            return True
+
+        # Should not be used at all
+        if 'pending' in status:
+            return True
+
+        return False
+
     def process_ticket(self, ticket):
         url = SF_URL.format(
             self.sf_project, self.mount_point, ticket['ticket_num']
@@ -240,7 +255,7 @@ class GitHubImport(object):
                 attachments=self.process_attachments(ticket, textile),
             ),
             'created_at': self.format_time(ticket['created_date']),
-            'closed': ticket['status'] in self.closed_states,
+            'closed': self.is_closed(ticket),
             'labels': labels,
             'assignee': self.get_assignee(ticket),
         }
