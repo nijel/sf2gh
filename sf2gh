@@ -263,7 +263,7 @@ class GitHubImport(object):
         ).replace(
             '\\)', ')'
         )
-        TILDES.sub('```', description)
+        description = TILDES.sub('```', description)
         lines = description.splitlines()
 
         # Reformat initial state change texts
