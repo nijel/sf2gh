@@ -125,6 +125,9 @@ class GitHubImport(object):
         if self.verbose:
             print 'Created milestone {0}'.format(title)
 
+    def format_time(self, timestamp):
+        return '{0}Z'.format(timestamp.replace(' ', 'T'))
+
     def clean(self):
         self.status.clean()
 
@@ -178,7 +181,7 @@ class GitHubImport(object):
                 body=self.process_body(ticket['description']),
                 author=ticket['reported_by']
             ),
-            'created_at': ticket['created_date'],
+            'created_at': self.format_time(ticket['created_date']),
             'closed': ticket['status'] in self.closed_states,
             'labels': labels,
             # TODO: assignee
@@ -220,7 +223,7 @@ class GitHubImport(object):
 
     def process_comment(self, post):
         return {
-            'created_at': post['timestamp'],
+            'created_at': self.format_time(post['timestamp']),
             'body': POST_TEMPLATE.format(
                 body=self.process_body(post['text']),
                 author=post['author'],
