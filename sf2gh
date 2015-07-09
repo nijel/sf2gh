@@ -183,6 +183,17 @@ class GitHubImport(object):
             self.tracker_label,
         ]
 
+        if 'duplicate' in ticket['status']:
+            labels.append('duplicate')
+        elif 'invalid' in ticket['status']:
+            labels.append('invalid')
+        elif 'out-of-date' in ticket['status']:
+            labels.append('invalid')
+        elif 'works-for-me' in ticket['status']:
+            labels.append('invalid')
+        elif 'wont-fix' in ticket['status']:
+            labels.append('wontfix')
+
         summary = ticket['summary']
         milestone = None
         if summary.startswith('(in ') or summary.startswith('(ok '):
