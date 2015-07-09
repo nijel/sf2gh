@@ -256,9 +256,17 @@ class GitHubImport(object):
         description = description.replace(
             '\\*', '*'
         ).replace(
+            '\\#', '#'
+        ).replace(
             '\\!', '!'
         ).replace(
             '\\_', '_'
+        ).replace(
+            '\\`', '`'
+        ).replace(
+            '\\]', ']'
+        ).replace(
+            '\\[', '['
         ).replace(
             '\\(', '('
         ).replace(
