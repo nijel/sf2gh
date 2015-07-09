@@ -234,7 +234,6 @@ class GitHubImport(object):
     def process_attachments(self, post):
         result = []
         for attachment in post['attachments']:
-            print attachment
             result.append(
                 '* **Attachment**: <{0}>'.format(attachment['url'])
             )
