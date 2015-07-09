@@ -46,6 +46,10 @@ LABEL_MAP = {
     'Support Requests': 'question',
 }
 TILDES = re.compile('^~~~+$')
+USER_MAP = {
+    'nijel': 'nijel',
+    'madhuracj': 'madhuracj',
+}
 
 
 class StatusStorage(object):
@@ -141,6 +145,11 @@ class GitHubImport(object):
         mount = data['tracker_config']['options']['mount_label']
         return LABEL_MAP[mount]
 
+    def get_assignee(self, ticket):
+        if ticket['assigned_to'] in USER_MAP:
+            return USER_MAP[ticket['assigned_to']]
+        return ''
+
     def process(self):
         data = json.load(self.handle)
 
@@ -188,7 +197,7 @@ class GitHubImport(object):
             'created_at': self.format_time(ticket['created_date']),
             'closed': ticket['status'] in self.closed_states,
             'labels': labels,
-            # TODO: assignee
+            'assignee': self.get_assignee(ticket),
         }
 
         if milestone:
