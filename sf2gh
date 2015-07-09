@@ -21,6 +21,7 @@ import sys
 import json
 import os.path
 import urllib2
+import re
 from xdg.BaseDirectory import save_config_path
 
 SF_URL = 'https://sourceforge.net/p/{0}/{1}/{2}/'
@@ -43,6 +44,7 @@ LABEL_MAP = {
     'Translations': 'translation',
     'Support Requests': 'question',
 }
+TILDES = re.compile('^~~~+$')
 
 
 class StatusStorage(object):
@@ -213,14 +215,13 @@ class GitHubImport(object):
     def process_body(self, description):
         # SourceForge.net special markup
         description = description.replace(
-            '~~~~', '```'
-        ).replace(
             '\\_', '_'
         ).replace(
             '\\(', '('
         ).replace(
             '\\)', ')'
         )
+        TILDES.sub(description, '```')
         lines = description.splitlines()
 
         # Reformat initial state change texts
