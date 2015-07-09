@@ -225,6 +225,8 @@ class GitHubImport(object):
             # Remove prefix and possible suffix (eg. 2.11-dev, or 2.11.3-rc1)
             # or (ok 2.5.2, new FAQ)
             milestone = milestone[4:].split(',')[0].split('-')[0].strip()
+            if milestone.endswith('dev'):
+                milestone = milestone[:-3]
         summary = summary.strip()
 
         textile = self.is_textile(ticket['created_date'])
