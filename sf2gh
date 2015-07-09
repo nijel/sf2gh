@@ -30,6 +30,7 @@ BODY_TEMPLATE = u'''{body}
 ---
 * **Original URL**: {url}
 * **Original author**: {author}
+{attachments}
 '''
 POST_TEMPLATE = u'''{body}
 
@@ -181,7 +182,8 @@ class GitHubImport(object):
             'body': BODY_TEMPLATE.format(
                 url=url,
                 body=self.process_body(ticket['description']),
-                author=ticket['reported_by']
+                author=ticket['reported_by'],
+                attachments=self.process_attachments(ticket),
             ),
             'created_at': self.format_time(ticket['created_date']),
             'closed': ticket['status'] in self.closed_states,
