@@ -20,6 +20,7 @@ import argparse
 import sys
 import json
 import os.path
+import urllib2
 from xdg.BaseDirectory import save_config_path
 
 SF_URL = 'https://sourceforge.net/p/{0}/{1}/{2}/'
@@ -70,7 +71,48 @@ class GitHubImport(object):
         self.sf_project = args.sf_project
         self.mount_point = None
         self.mount_label = None
-        self.closed_states = set()
+        self.closed_states = None
+        self.milestones = None
+
+    def api(self, url, data=None):
+        if data:
+            data = json.dumps(data)
+        if 'https://' not in url:
+            url = 'https://api.github.com{0}'.format(url)
+        request = urllib2.Request(
+            url,
+            data,
+            {
+                'Authorization': 'token {0}'.format(self.token),
+                'Accept': 'application/vnd.github.golden-comet-preview+json',
+            }
+        )
+        handle = urllib2.urlopen(request)
+    
+        result = json.load(handle)
+
+        if 'Link' in handle.headers:
+            for item in handle.headers['Link'].split(','):
+                url, rel = item.split(';')
+                url = url.strip()
+                rel = rel.strip()
+                if rel == 'rel="next"':
+                    result += self.api(url[1:-1])
+        return result
+
+    def create_milestone(self, title):
+        data = {
+            'title': title,
+            'state': 'closed',
+            'description': 'Imported from SourceForge',
+        }
+        response = self.api(
+            '/repos/{0}/milestones'.format(self.repo),
+            data
+        )
+        self.milestones[response['title']] = response['number']
+        if self.verbose:
+            print 'Created milestone {0}'.format(title)
 
     def clean(self):
         self.status.clean()
@@ -85,6 +127,11 @@ class GitHubImport(object):
         self.mount_point = data['tracker_config']['options']['mount_point']
         self.mount_label = data['tracker_config']['options']['mount_label']
         self.closed_states = data['closed_status_names'].split()
+
+        self.milestones = {
+            m['title']: m['number'] for m in
+            self.api('/repos/{0}/milestones?state=all'.format(self.repo))
+        }
 
         for ticket in data['tickets']:
             self.process_ticket(ticket)
@@ -103,7 +150,7 @@ class GitHubImport(object):
 
         summary = ticket['summary']
         milestone = None
-        if summary.startswith('(ok '):
+        if summary.startswith('(in ') or summary.startswith('(ok '):
             milestone, summary = summary.split(')', 1)
             # Remove prefix and possible suffix (eg. 2.11-dev, or 2.11.3-rc1)
             milestone = milestone[4:].split('-')[0].strip()
@@ -121,7 +168,9 @@ class GitHubImport(object):
         }
 
         if milestone:
-            issue['milestone'] = milestone
+            if milestone not in self.milestones:
+                self.create_milestone(milestone)
+            issue['milestone'] = self.milestones[milestone]
 
         if self.verbose:
             print json.dumps(issue, indent=2)
