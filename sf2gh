@@ -105,7 +105,8 @@ class GitHubImport(object):
         milestone = None
         if summary.startswith('(ok '):
             milestone, summary = summary.split(')', 1)
-            milestone = milestone[4:].strip()
+            # Remove prefix and possible suffix (eg. 2.11-dev, or 2.11.3-rc1)
+            milestone = milestone[4:].split('-')[0].strip()
         summary = summary.strip()
 
         issue = {
