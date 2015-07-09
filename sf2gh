@@ -68,6 +68,7 @@ class GitHubImport(object):
         self.repo = args.repo
         self.sf_project = args.sf_project
         self.mount_point = None
+        self.mount_label = None
         self.closed_states = set()
 
     def clean(self):
@@ -81,6 +82,7 @@ class GitHubImport(object):
 
         # Tracker mount point
         self.mount_point = data['tracker_config']['options']['mount_point']
+        self.mount_label = data['tracker_config']['options']['mount_label']
         self.closed_states = data['closed_status_names'].split()
 
         for ticket in data['tickets']:
@@ -93,7 +95,10 @@ class GitHubImport(object):
             self.sf_project, self.mount_point, ticket['ticket_num']
         )
 
-        labels = ['SourceForge']
+        labels = [
+            'SourceForge',
+            self.mount_label,
+        ]
 
         issue = {
             'title': ticket['summary'],
