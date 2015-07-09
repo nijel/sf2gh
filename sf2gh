@@ -237,7 +237,9 @@ class GitHubImport(object):
 
         response = self.api('import/issues', request)
         assert response['status'] == 'pending'
-        print json.dumps(response, indent=2)
+
+        if self.verbose:
+            print json.dumps(response, indent=2)
 
         self.status.data['tickets'][url] = {
             'import_response': response,
