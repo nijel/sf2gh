@@ -28,7 +28,7 @@ SF_URL = 'https://sourceforge.net/p/{0}/{1}/{2}/'
 BODY_TEMPLATE = u'''{body}
 
 ---
-* **Original URL**: <{url}>
+* **Original URL**: {url}
 * **Original author**: {author}
 {attachments}
 '''
@@ -298,7 +298,7 @@ class GitHubImport(object):
         result = []
         for attachment in post['attachments']:
             result.append(
-                '* **Attachment**: <{0}>'.format(attachment['url'])
+                '* **Attachment**: {0}'.format(attachment['url'])
             )
         return '\n'.join(result)
 
