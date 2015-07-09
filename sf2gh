@@ -23,6 +23,16 @@ import os.path
 from xdg.BaseDirectory import save_config_path
 
 SF_URL = 'https://sourceforge.net/p/{0}/{1}/{2}/'
+BODY_TEMPLATE = u'''{body}
+
+Original URL: {url}
+
+Original author: {author}
+'''
+POST_TEMPLATE = u'''{body}
+
+Original author: {author}
+'''
 
 
 class StatusStorage(object):
@@ -58,6 +68,7 @@ class GitHubImport(object):
         self.repo = args.repo
         self.sf_project = args.sf_project
         self.mount_point = None
+        self.closed_states = set()
 
     def clean(self):
         self.status.clean()
@@ -70,6 +81,7 @@ class GitHubImport(object):
 
         # Tracker mount point
         self.mount_point = data['tracker_config']['options']['mount_point']
+        self.closed_states = data['closed_status_names'].split()
 
         for ticket in data['tickets']:
             self.process_ticket(ticket)
@@ -80,7 +92,22 @@ class GitHubImport(object):
         url = SF_URL.format(
             self.sf_project, self.mount_point, ticket['ticket_num']
         )
-        self.status.data['tickets'][url] = {}
+
+        labels = ['SourceForge']
+
+        issue = {
+            'title': ticket['summary'],
+            'body': BODY_TEMPLATE.format(
+                url=url, body=ticket['description'], author=ticket['reported_by']
+            ),
+            'created_at': ticket['created_date'],
+            'closed': ticket['status'] in self.closed_states,
+            'labels': labels,
+            # TODO: assignee
+        }
+
+        self.status.data['tickets'][url] = {
+        }
 
 
 def get_parser():
