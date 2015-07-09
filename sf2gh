@@ -145,6 +145,20 @@ class GitHubImport(object):
     def format_time(self, timestamp):
         return '{0}Z'.format(timestamp.replace(' ', 'T'))
 
+    def is_textile(self, timestamp):
+        """Detect if textile renderer will be used on github
+
+        It depends on creation timestamp.
+        """
+        ts = int(timestamp.split()[0].replace('-', ''))
+        return ts < 20090421
+
+    def format_url(self, url, textile):
+        if textile:
+            return '"{0}":{0}'.format(url)
+        else:
+            return url
+
     def clean(self):
         self.status.clean()
 
@@ -212,13 +226,15 @@ class GitHubImport(object):
             milestone = milestone[4:].split(',')[0].split('-')[0].strip()
         summary = summary.strip()
 
+        textile = self.is_textile(ticket['created_date'])
+
         issue = {
             'title': summary,
             'body': BODY_TEMPLATE.format(
-                url=url,
+                url=self.format_url(url, textile),
                 body=self.process_body(ticket['description']),
                 author=ticket['reported_by'],
-                attachments=self.process_attachments(ticket),
+                attachments=self.process_attachments(ticket, textile),
             ),
             'created_at': self.format_time(ticket['created_date']),
             'closed': ticket['status'] in self.closed_states,
@@ -292,20 +308,23 @@ class GitHubImport(object):
         return '\n'.join(lines)
 
     def process_comment(self, post):
+        textile = self.is_textile(post['timestamp'])
         return {
             'created_at': self.format_time(post['timestamp']),
             'body': POST_TEMPLATE.format(
                 body=self.process_body(post['text']),
                 author=post['author'],
-                attachments=self.process_attachments(post),
+                attachments=self.process_attachments(post, textile),
             ),
         }
 
-    def process_attachments(self, post):
+    def process_attachments(self, post, textile):
         result = []
         for attachment in post['attachments']:
             result.append(
-                '* **Attachment**: {0}'.format(attachment['url'])
+                '* **Attachment**: {0}'.format(
+                    self.format_url(attachment['url'], textile)
+                )
             )
         return '\n'.join(result)
 
