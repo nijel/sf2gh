@@ -190,6 +190,10 @@ class GitHubImport(object):
         }
 
     def process_body(self, description):
+        # SourceForge.net special markup
+        description = description.replace(
+            '~~~~', '```'
+        )
         lines = description.splitlines()
 
         # Reformat initial state change texts
