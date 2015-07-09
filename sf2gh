@@ -88,7 +88,7 @@ class GitHubImport(object):
             }
         )
         handle = urllib2.urlopen(request)
-    
+
         result = json.load(handle)
 
         if 'Link' in handle.headers:
@@ -159,7 +159,9 @@ class GitHubImport(object):
         issue = {
             'title': summary,
             'body': BODY_TEMPLATE.format(
-                url=url, body=ticket['description'], author=ticket['reported_by']
+                url=url,
+                body=ticket['description'],
+                author=ticket['reported_by']
             ),
             'created_at': ticket['created_date'],
             'closed': ticket['status'] in self.closed_states,
@@ -187,7 +189,10 @@ def get_parser():
     # General parameters
     parser.add_argument(
         '--token',
-        help='GitHub OAuth token, get it at https://github.com/settings/tokens',
+        help=(
+            'GitHub OAuth token, get it at ' +
+            'https://github.com/settings/tokens'
+        ),
         required=True,
     )
     parser.add_argument(
@@ -228,6 +233,7 @@ def get_parser():
     )
 
     return parser
+
 
 def main():
     parser = get_parser()
