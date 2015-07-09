@@ -18,12 +18,78 @@
 #
 import argparse
 import sys
+import json
+import os.path
+from xdg.BaseDirectory import save_config_path
+
+SF_URL = 'https://sourceforge.net/p/{0}/{1}/{2}/'
 
 
-def main():
+class StatusStorage(object):
+    def __init__(self):
+        self.path = os.path.join(
+            save_config_path('sf2gh'),
+            'status.json'
+        )
+        self.data = {}
+
+    def load(self):
+        if os.path.exists(self.path):
+            with open(self.path, 'r') as handle:
+                self.data = json.load(handle)
+        if 'tickets' not in self.data:
+            self.data['tickets'] = {}
+
+    def save(self):
+        with open(self.path, 'w') as handle:
+            json.dump(self.data, handle, indent=2)
+
+    def clean(self):
+        self.data = {}
+        self.save()
+
+
+class GitHubImport(object):
+    def __init__(self, args):
+        self.status = StatusStorage()
+        self.handle = args.import_handle
+        self.token = args.token
+        self.repo = args.repo
+        self.sf_project = args.sf_project
+        self.mount_point = None
+
+    def clean(self):
+        self.status.clean()
+
+    def check(self):
+        self.status.load()
+        self.status.save()
+
+    def process(self):
+        self.status.load()
+        data = json.load(self.handle)
+
+        # Tracker mount point
+        self.mount_point = data['tracker_config']['options']['mount_point']
+
+        for ticket in data['tickets']:
+            self.process_ticket(ticket)
+
+        self.status.save()
+
+    def process_ticket(self, ticket):
+        url = SF_URL.format(
+            self.sf_project, self.mount_point, ticket['ticket_num']
+        )
+        self.status.data['tickets'][url] = {}
+
+
+def get_parser():
     parser = argparse.ArgumentParser(
         description='SourceForge.net to GitHub issue import',
     )
+
+    # General parameters
     parser.add_argument(
         '--token',
         help='GitHub OAuth token, get it at https://github.com/settings/tokens',
@@ -35,15 +101,44 @@ def main():
         required=True
     )
     parser.add_argument(
-        '--sf-tracker',
-        help='Name of SourceForge.net tracker, eg. phpmyadmin/bugs',
+        '--sf-project',
+        help='Name of SourceForge.net project, eg. phpmyadmin',
+        required=True
     )
-    parser.add_argument(
-        'input',
+
+    # Actions
+    group = parser.add_mutually_exclusive_group(
+        required=True
+    )
+    group.add_argument(
+        '--import',
         help='SourceForge.net tracker backup json',
         type=argparse.FileType('r'),
+        dest='import_handle'
     )
+    group.add_argument(
+        '--check',
+        help='Check status of previous imports',
+        action='store_true'
+    )
+    group.add_argument(
+        '--clean',
+        help='Clean local storage of previous imports',
+        action='store_true'
+    )
+
+    return parser
+
+def main():
+    parser = get_parser()
     args = parser.parse_args(sys.argv[1:])
+    importer = GitHubImport(args)
+    if args.clean:
+        importer.clean()
+    elif args.check:
+        importer.check()
+    else:
+        importer.process()
 
 
 if __name__ == "__main__":
