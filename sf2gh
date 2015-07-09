@@ -160,7 +160,7 @@ class GitHubImport(object):
             'title': summary,
             'body': BODY_TEMPLATE.format(
                 url=url,
-                body=ticket['description'],
+                body=self.process_body(ticket['description']),
                 author=ticket['reported_by']
             ),
             'created_at': ticket['created_date'],
@@ -174,10 +174,38 @@ class GitHubImport(object):
                 self.create_milestone(milestone)
             issue['milestone'] = self.milestones[milestone]
 
+        comments = [
+            self.process_comment(comment)
+            for comment in ticket['discussion_thread']['posts']
+        ]
+
+        request = {'issue': issue, 'comments': comments}
+
         if self.verbose:
-            print json.dumps(issue, indent=2)
+            print json.dumps(request, indent=2)
 
         self.status.data['tickets'][url] = {
+        }
+
+    def process_body(self, description):
+        lines = description.splitlines()
+
+        # Reformat initial state change texts
+        for i, line in enumerate(lines):
+            if line.startswith('- **'):
+                lines[i] = u'* {0}'.format(line[1:])
+            else:
+                break
+
+        return '\n'.join(lines)
+
+    def process_comment(self, post):
+        return {
+            'created_at': post['timestamp'],
+            'body': POST_TEMPLATE.format(
+                body=self.process_body(post['text']),
+                author=post['author'],
+            ),
         }
 
 
