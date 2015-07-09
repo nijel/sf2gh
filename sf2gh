@@ -171,8 +171,7 @@ class GitHubImport(object):
 
         for ticket in data['tickets']:
             self.process_ticket(ticket)
-
-        self.status.save()
+            self.status.save()
 
     def process_ticket(self, ticket):
         url = SF_URL.format(
