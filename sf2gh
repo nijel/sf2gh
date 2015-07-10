@@ -180,7 +180,7 @@ class GitHubImport(object):
                 print 'Error in importing:', url
                 print data['import_response']
 
-        self.status.save()
+            self.status.save()
 
     def get_tracker_label(self, data):
         mount = data['tracker_config']['options']['mount_label']
