@@ -156,7 +156,10 @@ class GitHubImport(object):
 
     def format_url(self, url, textile):
         if textile:
-            return '"{0}":{0}'.format(url)
+            return '"{0}":{1}'.format(
+                url.replace('_', '&#x5f;'),
+                url
+            )
         else:
             return url
 
