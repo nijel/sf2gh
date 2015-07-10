@@ -204,8 +204,9 @@ class GitHubImport(object):
         }
 
         for ticket in data['tickets']:
-            self.process_ticket(ticket)
-            self.status.save()
+            result = self.process_ticket(ticket)
+            if result:
+                self.status.save()
 
     def is_closed(self, ticket):
         status = ticket['status']
@@ -246,7 +247,7 @@ class GitHubImport(object):
         if self.should_skip(url):
             if self.verbose:
                 print 'Already processed:', url
-            return
+            return False
 
         labels = [
             'SourceForge',
@@ -317,6 +318,7 @@ class GitHubImport(object):
         self.status.data['tickets'][url] = {
             'import_response': response,
         }
+        return True
 
     def process_body(self, description):
         # SourceForge.net special markup
