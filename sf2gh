@@ -21,6 +21,7 @@ import sys
 import json
 import os.path
 import urllib2
+import unicodedata
 import re
 from xdg.BaseDirectory import save_config_path
 
@@ -321,6 +322,8 @@ class GitHubImport(object):
         return True
 
     def process_body(self, description):
+        # Normalize unicode
+        description = unicodedata.normalize('NFC', description)
         # SourceForge.net special markup
         description = description.replace(
             '\\*', '*'
