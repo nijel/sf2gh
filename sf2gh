@@ -187,7 +187,7 @@ class GitHubImport(object):
     def get_assignee(self, ticket):
         if ticket['assigned_to'] in USER_MAP:
             return USER_MAP[ticket['assigned_to']]
-        return ''
+        return None
 
     def process(self):
         data = json.load(self.handle)
@@ -271,8 +271,10 @@ class GitHubImport(object):
             'created_at': self.format_time(ticket['created_date']),
             'closed': self.is_closed(ticket),
             'labels': labels,
-            'assignee': self.get_assignee(ticket),
         }
+        assignee = self.get_assignee(ticket)
+        if assignee:
+            issue['assignee'] = assignee
 
         if milestone:
             if milestone not in self.milestones:
