@@ -167,6 +167,17 @@ class GitHubImport(object):
         self.status.clean()
 
     def check(self):
+        for url in self.status.data['tickets']:
+            data = self.status.data['tickets'][url]
+            if 'import_response' not in data:
+                continue
+
+            if data['import_response']['status'] == 'pending':
+                data['import_response'] = self.api(data['import_response']['url'])
+
+            if data['import_response']['status'] not in ('pending', 'imported'):
+                print data['import_response']
+
         self.status.save()
 
     def get_tracker_label(self, data):
