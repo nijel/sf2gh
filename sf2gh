@@ -90,6 +90,7 @@ class GitHubImport(object):
         self.token = args.token
         self.repo = args.repo
         self.verbose = args.verbose
+        self.retry_failed = args.retry_failed
         self.sf_project = args.sf_project
         self.mount_point = None
         self.tracker_label = None
@@ -176,6 +177,7 @@ class GitHubImport(object):
                 data['import_response'] = self.api(data['import_response']['url'])
 
             if data['import_response']['status'] not in ('pending', 'imported'):
+                print 'Error in importing:', url
                 print data['import_response']
 
         self.status.save()
@@ -221,12 +223,28 @@ class GitHubImport(object):
 
         return False
 
+    def should_skip(self, url):
+        if url not in self.status.data['tickets']:
+            return False
+
+        if 'import_response' not in self.status.data['tickets']:
+            return False
+
+        if not self.retry_failed:
+            return True
+
+        response = self.status.data['tickets']['import_response']
+        if response['status'] in ('pending', 'imported'):
+            return True
+
+        return False
+
     def process_ticket(self, ticket):
         url = SF_URL.format(
             self.sf_project, self.mount_point, ticket['ticket_num']
         )
 
-        if url in self.status.data['tickets']:
+        if self.should_skip(url):
             if self.verbose:
                 print 'Already processed:', url
             return
@@ -399,6 +417,11 @@ def get_parser():
     parser.add_argument(
         '--verbose',
         help='Verbose processing',
+        action='store_true',
+    )
+    parser.add_argument(
+        '--retry-failed',
+        help='Retry failed imports',
         action='store_true',
     )
 
