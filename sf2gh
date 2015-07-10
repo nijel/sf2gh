@@ -227,13 +227,13 @@ class GitHubImport(object):
         if url not in self.status.data['tickets']:
             return False
 
-        if 'import_response' not in self.status.data['tickets']:
+        if 'import_response' not in self.status.data['tickets'][url]:
             return False
 
         if not self.retry_failed:
             return True
 
-        response = self.status.data['tickets']['import_response']
+        response = self.status.data['tickets'][url]['import_response']
         if response['status'] in ('pending', 'imported'):
             return True
 
