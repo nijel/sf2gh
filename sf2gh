@@ -250,7 +250,6 @@ class GitHubImport(object):
             return False
 
         labels = [
-            'SourceForge',
             self.tracker_label,
         ]
 
