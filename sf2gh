@@ -181,6 +181,21 @@ class GitHubImport(object):
                 print 'Error in importing:', url
                 print data['import_response']
 
+    def mapping(self):
+        for url in self.status.data['tickets']:
+            data = self.status.data['tickets'][url]
+            if 'import_response' not in data:
+                continue
+
+            if data['import_response']['status'] == 'imported':
+                print '{0} {1}'.format(
+                    url,
+                    data['import_response']['issue_url'].replace(
+                        'https://api.github.com/repos/',
+                        'https://github.com/'
+                    )
+                )
+
     def get_tracker_label(self, data):
         mount = data['tracker_config']['options']['mount_label']
         return LABEL_MAP[mount]
@@ -451,6 +466,11 @@ def get_parser():
         action='store_true'
     )
     group.add_argument(
+        '--mapping',
+        help='Displays mapping of SourceForge URLs to GitHub ones',
+        action='store_true'
+    )
+    group.add_argument(
         '--clean',
         help='Clean local storage of previous imports',
         action='store_true'
@@ -467,6 +487,8 @@ def main():
         importer.clean()
     elif args.check:
         importer.check()
+    elif args.mapping:
+        importer.mapping()
     else:
         importer.process()
 
