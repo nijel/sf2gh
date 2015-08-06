@@ -374,7 +374,17 @@ class GitHubImport(object):
             if line.startswith('\\-'):
                 lines[i] = line[1:]
 
-        return '\n'.join(lines)
+        result = '\n'.join(lines)
+
+        # Truncate long comments, GitHub has limit of 65535 chars,
+        # but we need to keep some space for metadata we add at the
+        # end of comment.
+        if len(result) > 60000:
+            print 'TOO LONG COMMENT, STRIPPING!'
+            result = result[:60000]
+            result += '\n\n...comment too long, stripped!'
+        return result
+
 
     def process_comment(self, post):
         textile = self.is_textile(post['timestamp'])
