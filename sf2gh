@@ -264,14 +264,6 @@ class GitHubImport(object):
                 print 'Already processed:', url
             return False
 
-        # This one causes server error
-        IGNORED = (
-            'https://sourceforge.net/p/phpmyadmin/bugs/2669/',
-        )
-
-        if url in IGNORED:
-            return False
-
         labels = [
             self.tracker_label,
         ]
